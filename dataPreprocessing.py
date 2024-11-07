@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 # read our excel dataset
 df = pd.DataFrame(pd.read_excel('./datasets/eleve_dataset_Premier.xlsx'))
@@ -11,7 +11,7 @@ print(df)
 # Check for NaN values 
 nan_summary = df.isna().sum()
 print(nan_summary)
-
+print(df.columns)
 # Change Niveauscolaire to number : 1 for "Premier année"
 # Implicit categorical encoding 
 df["Niveau Scolaire"] = 1 
@@ -39,9 +39,26 @@ df = pd.concat([df.drop('Aspiration Professionnelle', axis=1), encoded_df], axis
 # encoding of target column orientation affectue
 label_encoder = LabelEncoder()
 df['Orientation Affectue encoded'] = label_encoder.fit_transform(df['Orientation Affectuee '])
+df = df.drop(['Orientation Affectuee '], axis=1)
+
+# Standardizing numeric columns
+scaler = StandardScaler()
+df_without_label = df.drop(['Orientation Affectue encoded'], axis=1)
+df_scaled = scaler.fit_transform(df_without_label)
+df_target = df['Orientation Affectue encoded']
+print("df scaled: ", df_scaled)
+print("-------------------------------------------------")
+print("df target :", df_target)
+
+df_scaled = pd.DataFrame(df_scaled)
+df_ext = pd.concat([df_scaled, df_target])
+# Save result dataset
+df_scaled.to_csv("datasets/scaleddata.csv")
+df_target.to_csv("datasets/targetdata.csv")
 
 
-#print(df.columns)
+
+
 # Convert the excel dataset into csv
 #df.to_csv("Dataset.csv",
 #          index= None,
